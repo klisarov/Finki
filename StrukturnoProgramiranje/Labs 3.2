@@ -1,0 +1,91 @@
+Од тастатура се внесува четирицифрен број n што во себе содржи барем 2 цифри со вредност 5.
+КОЛЕГА на тој број е бројот кој на позициите на кои има петки во првиот број ќе има шестка во бројот КОЛЕГА. (Пр. колега на 5551 е 6661).
+На екран да се испечати за колку проценти едниот број е поголем/помал од другиот број. Да се има во предвид дека некогаш може да биде поголем бројот n , а некогаш неговиот колега.
+Доколку бројот n не содржи најмалку 2 цифри петки, да се испечати порака за грешка како во тест примерите.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+int main ()
+{
+    int x,y;
+    int brojac = 0;
+    int prvabrojka,vtorabrojka,tretabrojka,cetvrtabrojka;
+    int kolega;
+    int brojka;
+    float prvslucaj, vtorslucaj;
+    scanf ("%d",&x);
+    y=x;
+    while ( y)
+    {
+        brojka = y%10;
+        if (brojka==5)
+        {
+            brojac++;
+        }
+        y/=10;
+        if(y<1)
+        {
+            break;
+        }
+    }
+    if (brojac > 1 )
+    {
+        prvabrojka = x/1000;
+        vtorabrojka = x/100%10;
+        tretabrojka = x/10%10;
+        cetvrtabrojka = x%10;
+        if (prvabrojka == 5)
+        {
+            prvabrojka+=1;
+        }
+        else if (prvabrojka == -5)
+        {
+            prvabrojka-= 1;
+        }
+        if (vtorabrojka == 5)
+        {
+            vtorabrojka+= 1;
+        }
+        else if (vtorabrojka == -5)
+        {
+            vtorabrojka-= 1;
+        }
+        if (tretabrojka == 5)
+        {
+            tretabrojka+= 1;
+        }
+        else if (tretabrojka == -5)
+        {
+            tretabrojka-= 1;
+        }
+        if (cetvrtabrojka == 5)
+        {
+            cetvrtabrojka+= 1;
+        }
+        else if (cetvrtabrojka == -5)
+        {
+            cetvrtabrojka-= 1;
+        }
+
+        kolega = (prvabrojka*1000)+(vtorabrojka*100)+(tretabrojka*10)+cetvrtabrojka;
+
+        if (x<kolega)
+        {
+            prvslucaj = kolega - x;
+            printf ("%.4f%%",prvslucaj/x*100);
+        }
+        else if (x>kolega)
+        {
+            vtorslucaj = x - kolega;
+            printf ("%.4f%%",vtorslucaj/x*100);
+        }
+    }
+    else
+    {
+        printf ("Error");
+    }
+
+    return 0;
+
+}
