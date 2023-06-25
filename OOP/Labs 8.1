@@ -1,0 +1,120 @@
+Да се имплементира класа Employee за која се чува:
+име (низа од карактери)
+години (цел број)
+Во класата да се имплементира виртуелна функција displayInfo() која на екран печати информации за вработениот.
+Потоа да се имплементира класа Payable за која се чува:
+плата (децимален број)
+За класата да се креира чисто виртуелна функција calculateSalary()
+Од овие класи потребно е да се изведат Developer и Manager. 
+За класата Developer дополнително се чува и програмскиот јазик (низа од карактери). Потребно е да се препокријат соодветните функции. Платата се пресметува така што од основната плата се одзема данок од 10%.
+За класата Manager дополнително се чува и број на оддели за кои е одговорен. Потребно е да се препокријат соодветните функции. Платата се пресметува така што на основната плата се додава бонус од 5% за секој еден оддел. 
+
+
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+class Employee {
+protected:
+    char name[50];
+    int age;
+public:
+    Employee() {}
+    Employee(const char* name, int age) : age(age) {
+        strcpy(this->name, name);
+    }
+    virtual void displayInfo() {
+        cout<<"Name: "<<name<<endl<<"Age: "<<age<<endl;
+    }
+};
+
+class Payable {
+protected:
+    double salary;
+public:
+    Payable() {}
+    Payable(double salary) : salary(salary) {}
+    virtual double calculateSalary() = 0;
+};
+
+class Developer : public Employee, public Payable {
+private:
+    char programmingLanguage[50];
+public:
+    Developer() {}
+    Developer(const char* name, int age, double salary, const char* programmingLanguage) :
+        Employee(name, age), Payable(salary) {
+            strcpy(this->programmingLanguage, programmingLanguage);
+        }
+    void displayInfo() override {
+        cout << "-- Developer Information --" << endl;
+        Employee::displayInfo();
+        cout << "Salary: $" << calculateSalary() << endl;
+        cout<<"Programming Language: "<<programmingLanguage<<endl;
+    }
+    double calculateSalary() override {
+        return salary - (salary * 0.10); // subtract 10% tax
+    }
+};
+
+class Manager : public Employee, public Payable {
+private:
+    int numberOfDepartments;
+public:
+    Manager() {}
+    Manager(const char* name, int age, double salary, int numberOfDepartments) :
+        Employee(name, age), Payable(salary), numberOfDepartments(numberOfDepartments) {}
+    void displayInfo() override {
+        cout << "-- Manager Information --" << endl;
+        Employee::displayInfo();
+        cout << "Salary: $" << calculateSalary() << endl;
+        cout<<"Number of Departments: "<<numberOfDepartments<<endl;
+    }
+    double calculateSalary() override {
+        return salary + (salary * (numberOfDepartments * 0.05)); // add 5% bonus for each department
+    }
+};
+
+double biggestSalary(Payable** payable, int n) {
+    double maxSalary = 0;
+    for(int i=0; i<n; i++) {
+        if(payable[i]->calculateSalary() > maxSalary)
+            maxSalary = payable[i]->calculateSalary();
+    }
+    return maxSalary;
+}
+
+int main()
+{
+    Payable* payable[5];
+    Developer developers[5];
+    Manager managers[5];
+    int j=0, k=0;
+    for(int i=0; i<5; i++)
+    {
+        char name[50];
+        int age;
+        double salary;
+        cin>>name>>age>>salary;
+        if(i%2==0)
+        {
+            char programmingLanguage[50];
+            cin>>programmingLanguage;
+            developers[j]=Developer(name, age, salary, programmingLanguage);
+            developers[j].displayInfo();
+            payable[i]=&developers[j];
+            j++;
+        }
+        else {
+            int numberOfDepartments;
+            cin>>numberOfDepartments;
+            managers[k]=Manager(name, age, salary, numberOfDepartments);
+            managers[k].displayInfo();
+            payable[i]=&managers[k];
+            k++;
+        }
+    }
+    cout<<endl<<"Biggest Salary: "<<biggestSalary(payable, 5);
+    return 0;
+}
