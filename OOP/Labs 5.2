@@ -1,0 +1,220 @@
+Да се напише класа Book во која се чуваат информации за името на книгата (динамички алоцирана низа од знаци), isbn на книгата (динамички алоцирана низа од 5 цели броја) и број на страници (цел број). За класата да се обезбедат set и get методите што се користат и да се преоптоварат следните оператори:
+оператор == за споредување на две книги според isbn-от
+оператор << за печатење на податоци за книгата во формат Title: наслов ISBN:[x y z k l]
+Да се напише класа BorrowABook за библиотека за изнајмување книги  во која се чуваат информација за името на бибилиотеката (низа од 100 знци), низа од книги (динамички алоцирана низа од објекти од класата Book) и број на книги со кој располага (цел број). Во класата BorrowABook да се напише конструктор со еден аргумент за иницијализација на името на библиотеката. При секое додавање на нова книга во библиотеката, динамички алоцираната низа да го зголемува капацитетот за 1 елемент. Во оваа класа да се преоптоварат операторите:
++= за додавање на нова книга во библиотеката и
+-= за отстранување на дадена книга од библиотеката (онаа со веќепостоечки ISBN кој се поклопува со ISBN-от на друга книга).
+На излез да се отпечатат името на библиотеката и листа на книги што таа ги изнајмува, а чиј број на страници е поголем од 150. Последново да се направи со функција printNumberOfPages(int max) што треба да се дефинира во класата BorrowABook.
+Појаснување на main функцијата: Информациите за книгите се читаат од тастатура со операторот +=. Во последниот ред од влезот дадени се информации за книгата која што се внесува грешно бидејќи има ист isbn како и друга книга. Потребно е истата да биде избришана.
+!!! ДА НЕ СЕ ПРАВАТ ПРОМЕНИ ВО MAIN() ФУНКЦИЈАТА !!!
+
+
+#include <iostream>
+#include <string.h>
+#include <ctype.h>
+using namespace std;
+
+class Book{
+private:
+    char *title;
+    int pages;
+    int *isbn;
+public:
+Book()
+{
+title=new char[0];
+isbn=new int[5];
+pages=0;
+}
+    Book(char *title,int *isbn,int pages)
+    {
+        this->title=new char [strlen(title)+1];
+        strcpy(this->title,title);
+        this->pages=pages;
+        this->isbn=new int [5];
+        for(int i=0;i<5;i++)
+            this->isbn[i]=isbn[i];
+    }
+    Book(const Book &a)
+    {
+        this->title=new char [strlen(a.title)+1];
+        strcpy(this->title,a.title);
+        this->pages=a.pages;
+        this->isbn=new int [5];
+        for(int i=0;i<5;i++)
+            this->isbn[i]=a.isbn[i];
+    }
+    Book & operator=(const Book &a)
+    {
+        if(this!=&a)
+        {
+             
+        delete [] title;
+            this->title=new char [strlen(a.title)+1];
+        strcpy(this->title,a.title);
+        this->pages=a.pages;
+        delete [] isbn;
+        this->isbn=new int [5];
+        for(int i=0;i<5;i++)
+            this->isbn[i]=a.isbn[i];
+        }
+        return *this;
+    }
+     ~Book()
+    {
+        delete [] isbn;
+        delete [] title;
+    }
+   
+    bool operator==(const Book &a)
+    {
+        int br=0;
+        for(int i=0;i<5;i++)
+        {
+            if(this->isbn[i]==a.isbn[i])
+            br++;
+
+        }
+        if(br==5)
+            return true;
+       
+            return false;
+
+    }
+    friend ostream&operator<<(ostream &out,const Book &a)
+
+    {
+        out<<"Title: "<<a.title<<" ISBN: [ ";
+        for(int i=0;i<5;i++)
+            out<<a.isbn[i]<<" ";
+        out<<"]"<<endl;
+        return out;
+    }
+    int getPages()
+    {
+        return pages;
+    }
+
+};
+class BorrowABook
+{
+private:
+    char ime[100];
+    Book *niza;
+    int n;
+public:
+    BorrowABook(char *ime)
+    {
+        strcpy(this->ime,ime);
+        this->niza=new Book[0];
+        this->n=0;
+    }
+    ~BorrowABook()
+    {
+        delete [] niza;
+    }
+    BorrowABook(const BorrowABook &rc)
+    {
+    strcpy(this->ime,rc.ime);
+    this->n=rc.n;
+    this->niza=new Book [rc.n];
+    for(int i=0;i<rc.n;i++)
+    this->niza[i]=rc.niza[i];
+    }
+    BorrowABook &operator=(const BorrowABook &rc)
+    {
+    if(this!=&rc)
+    {
+    strcpy(this->ime,rc.ime);
+    this->n=rc.n;
+    this->niza=new Book [rc.n];
+    delete [] niza;
+    for(int i=0;i<rc.n;i++)
+    this->niza[i]=rc.niza[i];
+    }
+    return *this;
+    }
+    BorrowABook &operator+=(const Book &nov)
+    {
+        Book *temp=new Book [n+1];
+        for(int i=0;i<n;i++)
+            temp[i]=niza[i];
+        temp[n++]=nov;
+        delete [] niza;
+        niza=temp;
+        return *this;
+    }
+    BorrowABook &operator-=(const Book &nov)
+    {
+         Book *temp=new Book [n-1];
+         int br=0;
+         for(int i=0;i<n;i++)
+         {
+             if(niza[i]==nov)
+                continue;
+             else
+             {
+                 temp[br]=niza[i];
+                 br++;
+             }
+         }
+         delete []niza;
+         niza=temp;
+         n=br;
+         return *this;
+    }
+    void  printNumberOfPages(int max)
+    {
+        cout<<ime<<endl;
+        for(int i=0;i<n;i++)
+        {
+            if(niza[i].getPages()>max)
+                cout<<niza[i]<<endl;
+        }
+    }
+
+};
+/// Do NOT edit the main() function
+int main()
+{
+   BorrowABook library("FINKI-Library");
+   int n;
+   cin>>n;
+    
+   for (int i=0;i<n;i++)
+   {
+    	char title[100];
+    	int isbn[5];
+    	int pages;
+    
+       	cin>>title;
+    
+       	for (int j=0;j<5;j++)
+    		cin>>isbn[j];
+    
+    	cin>>pages;
+    
+       	Book nov=Book(title,isbn,pages);
+       
+    	//adding a new book
+       	library+=nov;   
+       
+   }
+    //the book which has the same isbn as some previous one
+    char title[100];
+    int isbn[5];
+    int pages;
+    cin>>title;
+    for (int i=0;i<5;i++)
+    cin>>isbn[i];
+    cin>>pages;
+    
+    Book greshka=Book(title,isbn,pages);
+    
+    //deleting a book
+    library-=greshka;
+    
+    library.printNumberOfPages(150);
+    
+    return 0;
+}
