@@ -1,0 +1,88 @@
+Во ова лабораториска вежба дадени ви се задачи од првиот колоквиум 2023. 
+Доколку ова вежба ви се оценува (група А сите термини), ќе бидете оценети само за втората задача (со класи). 
+-- 
+In this lab exercise, you are given the two tasks from the first midterm 2023.
+If this lab exercise participates in your total lab points (i.e you are in the group А), only the second task (the one with classes) will be graded.
+
+Во програмскиот јазик C да се креира структура UmetnickoDelo за опишување на уметничко дело во дадена галерија. Структурата треба да содржи: (5 поени)
+Автор (низа од 100 знаци)
+Цена(реален број)
+Тип на уметничко дело (цел број со вредност 1 за слика, 2 за скулптура)
+Да се креира структура Galerija, што содржи: (5 поени)
+Име на галеријата (низа од 50 знаци)
+Низа од достапни уметнички дела (низа од максимум 30 елементи од структурата UmetnickoDelo)
+Број на елементи во низата (цел број)
+Да се креира глобална функција print за печатење на информациите за дадена галерија во следниот формат: (10 поени)
+[Ime na galerijata]
+[Avtor1] [Cena1] [Tip1]
+[Avtor2] [Cena2] [Tip2]
+[Avtor3] [Cena3] [Tip3]
+...
+Да се креира функција najdobra_ponuda, што прима низа од променливи од типот Galerija, и променлива tipNaDelo. Оваа функција треба да го испечати името на галеријата која ја нуди најевтината уметничка слика (за променлива со вредност 1) и името на галеријата која ја нуди најевтината скулптура (за променлива со вредност 2). Најевтино уметничко дело е уметничкото дело кое има најнска цена. Ако има повеќе такви галерии со најевтино уметничко дело, се печати последната.(15 поени)
+
+
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char avtor[100];
+    float cena;
+    int tip;
+} UmetnickoDelo;
+
+typedef struct {
+    char ime[50];
+    UmetnickoDelo delo[30];
+    int brojDelo;
+} Galerija;
+
+void print(Galerija g) {
+    printf("%s\n", g.ime);
+    for (int i = 0; i < g.brojDelo; i++) {
+        printf("%s %.2f %d\n", g.delo[i].avtor, g.delo[i].cena, g.delo[i].tip);
+    }
+}
+
+void najdobra_ponuda(Galerija galerii[], int brojGalerii, int tipNaDelo) {
+    char najdobraGalerija[50];
+    float minCena = -1;
+
+    for (int i = 0; i < brojGalerii; i++) {
+        for (int j = 0; j < galerii[i].brojDelo; j++) {
+            if (galerii[i].delo[j].tip == tipNaDelo) {
+                if (minCena == -1 || galerii[i].delo[j].cena <= minCena) {
+                    minCena = galerii[i].delo[j].cena;
+                    strncpy(najdobraGalerija, galerii[i].ime, sizeof(najdobraGalerija));
+                }
+            }
+        }
+    }
+    if (minCena != -1) {
+        printf("Najevtino umetnicko delo tip %s go nudi galerijata: %s so cena: %.2f\n", tipNaDelo==1?"slika":"skulptura", najdobraGalerija, minCena);
+    } else {
+        printf("Ne e pronajdeno umetnicko delo od tip %s\n", tipNaDelo==1?"slika":"skulptura");
+    }
+}
+
+int main() {
+     int brojGalerii;
+    scanf("%d", &brojGalerii);
+
+    Galerija galerii[brojGalerii];
+
+    for (int i = 0; i < brojGalerii; i++) {
+        scanf("%s %d", galerii[i].ime, &galerii[i].brojDelo);
+        for (int j = 0; j < galerii[i].brojDelo; j++) {
+            scanf("%s %f %d", galerii[i].delo[j].avtor, &galerii[i].delo[j].cena, &galerii[i].delo[j].tip);
+        }
+    }
+    for (int i = 0; i < brojGalerii; i++) {
+        print(galerii[i]);
+    }
+    
+    int tipNaDelo;
+    scanf("%d",&tipNaDelo);
+    najdobra_ponuda(galerii, brojGalerii, tipNaDelo);
+
+    return 0;
+}
