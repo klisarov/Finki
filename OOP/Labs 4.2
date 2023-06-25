@@ -1,0 +1,266 @@
+За потребите на апликациите за нарачка и доставување на храна (пр. Корпа, Кликни Јади и сл.) потребно е да се имплементира модул за управување со доставувачите.
+Да се имплементира класа DeliveryPerson во која ќе се чуваат информации за:
+ИД на доставувачот (низа од најмногу 5 знаци)
+Име на доставувачот (динамички алоцирана низа од знаци)
+Локација - реон во кој моментално се наоѓа доставувачот (цел број)
+Број на извршени достави (цел број, иницијално е 0)
+За класата да се имплементираат потребните конструктори, оператор = и методи за да функционира решението. (10 поени). Дополнително за класата да се имплементира метод void print() за печатење на информациите за доставувачот. (5 поени)
+Да се имплементира класа DeliveryApp во која ќе се чуваат информации за:
+Име на апликацијата (низа од најмногу 20 знаци)
+Листа на доставувачи кои работат за оваа компанија (динимички алоцирана низа од објекти од класата DeliveryPerson, иницијално без елементи)
+Број на доставувачи (број на елементи во низата од доставувачи - цел број, иницијално е 0)
+За класата да се имплементираат потребните конструктори и методи со цел да функционира решението. (5 поени) Дополнително во класата да се имплементираат:
+метод void addDeliveryPerson (const DeliveryPerson & person) - за додавање нов доставувач во апликацијата. (10 поени) Да не се дозволи додавање на доставувач со веќе постоечко ИД. (5 поени)
+метод void assignDelivery (int restaurantArea, int customerArea) - за доделување на нарачка на доставувачот кој е најблиску до реонот на ресторанот restaurantArea од кој треба да се подигне нарачката. При доделување на нарачка на доставувач важат следните правила:
+Просторот на кој функционира апликацијата е поделен на 10 соседни реони. Пример доколку ресторанот е во реон 5, прво се проверува дали има достапен доставувач во самиот тој реон (5), па потоа дали има доставувачи во првите соседни реони (4 и 6), па во вторите соседни реони (3 и 7) итн.
+Доколку има повеќе доставувачи во реонот што е најблиску до посакуваниот реон, се избира доставувачот кој има извршено најмалку доставувања досега.
+Откако нарачката е доделена на доставувачот, се менува неговата локација на реонот во кој се доставува нарачката (customerArea) и се зголемува бројот на извршени достави за доставувачот. (15 поени)
+метод void print() - за печатење на информации за сите доставувачи кои работат за компанијата (формат во тест примери). (10 поени)
+Објаснување за вториот тест пример: 
+Апликацијата има четири доставувачи: Стефан (лоциран во 2), Влатко (лоциран во 3), Стојменски (лоциран во 8) и Тенев (лоциран во 1). 
+Првата нарачка е од реон 2 во 4. Стефан е оддалечен 0 реони од реон 2, Влатко е оддалечен 1 реон, Стојменски е оддалечен 6 реони и Тенев е оддалечен 1 реон. Нарачката ќе му биде доделена на Стефан бидејќи е најблиску и неговата локација ќе биде променета во 4.
+Втората нарачка е од реон 3 во 5. Стефан е оддалечен 1 реон, Влатко 0 реони, Стојменски 5 реони и Тенев 2 реони. Нарачката ќе му биде доделена на Влатко бидејќи е најблиску и неговата локација ќе биде променета во 5. 
+Третата нарачка е од реон 2 во 9. Најблиску до ова нарачка е Тенев (оддалечен само 1 реон до реонот 2). Нарачката ќе му биде доделена на Тенев бидејќи е најблиску и неговата локација ќе биде променета во 9. 
+Четвртата нарачка е од реон 8 во реон 10. Најблиску до ова нарачка е Стојменски (оддалечен 0 реони до ресторанот), па тој ќе ја подигне нарачката. 
+Во овој пример, сите доставувачи подигнуваат точно по една нарачка.
+
+
+#include<iostream>
+#include<cstring>
+
+using namespace std;
+
+class DeliveryPerson {
+private:
+    char ID[6];
+    char *name;
+    int location;
+    int deliveries;
+
+    void copy(const DeliveryPerson &other) {
+        this->location = other.location;
+        this->deliveries = other.deliveries;
+        strcpy(this->ID, other.ID);
+        this->name = new char[strlen(other.name) + 1];
+        strcpy(this->name, other.name);
+    }
+
+public:
+    DeliveryPerson(char *id = "", char *name = "", int location = 0, int deliveries = 0) : location(location),
+                                                                                           deliveries(deliveries) {
+        strcpy(this->ID, id);
+        this->name = new char[strlen(name) + 1];
+        strcpy(this->name, name);
+    }
+
+    DeliveryPerson(const DeliveryPerson &other) {
+        copy(other);
+    }
+
+    DeliveryPerson &operator=(const DeliveryPerson &other) {
+        if (this != &other) {
+            delete[] name;
+            copy(other);
+        }
+        return *this;
+    }
+
+    ~DeliveryPerson() {
+        delete[] name;
+    }
+
+    void print() {
+        cout << "ID: " << ID << " Name: " << name << " Current location: " << location << " # of deliveries: "
+             << deliveries << endl;
+    }
+
+    bool isSame(const DeliveryPerson &d) {
+        return strcmp(this->ID, d.ID) == 0;
+    }
+
+    int distance(int area) {
+        return abs(location - area);
+    }
+
+    int getDeliveries() const {
+        return deliveries;
+    }
+
+    void setLocation(int location) {
+        DeliveryPerson::location = location;
+    }
+
+    void setDeliveries(int deliveries) {
+        DeliveryPerson::deliveries = deliveries;
+    }
+
+    void increaseDeliveries() {
+        ++deliveries;
+    }
+
+    char * getName() {
+        return name;
+    }
+
+    bool compare (DeliveryPerson & dp, int area){
+        if (this->distance(area) < dp.distance(area)){
+            return true;
+        } else if (this->distance(area) == dp.distance(area)) {
+            return this->deliveries < dp.deliveries;
+        } else {
+            return false;
+        }
+    }
+};
+
+class DeliveryApp {
+private:
+    char name[20];
+    DeliveryPerson * drivers;
+    int count;
+
+    void copy(const DeliveryApp &other) {
+        strcpy(this->name, other.name);
+        count = other.count;
+        drivers = new DeliveryPerson[count];
+        for (int i = 0; i < count; i++) {
+            drivers[i] = other.drivers[i];
+        }
+    }
+
+public:
+    DeliveryApp(char *name = "") {
+        strcpy(this->name, name);
+        drivers = new DeliveryPerson [0];
+        count = 0;
+    }
+
+//    DeliveryApp (const DeliveryApp & other){
+//        copy(other);
+//    }
+//
+//    DeliveryApp & operator = (const DeliveryApp & other){
+//        if (this!=&other){
+//            delete [] drivers;
+//            copy(other);
+//        }
+//        return *this;
+//    }
+
+    ~DeliveryApp() {
+        delete[] drivers;
+    }
+
+    void print() {
+        cout << name << endl;
+        if (count == 0) {
+            cout << "EMPTY" << endl;
+        }
+        for (int i = 0; i < count; ++i) {
+            drivers[i].print();
+        }
+    }
+
+    void addDeliveryPerson(const DeliveryPerson &driver) {
+        for (int i = 0; i < count; ++i) {
+            if (drivers[i].isSame(driver)) {
+                return;
+            }
+        }
+
+        DeliveryPerson *tmp = new DeliveryPerson[count + 1];
+        for (int i = 0; i < count; ++i) {
+            tmp[i] = drivers[i];
+        }
+        tmp[count++] = driver;
+        delete[] drivers;
+        drivers = tmp;
+    }
+
+    void assignDelivery(int restaurantArea, int customerArea) {
+        int idx = 0;
+        for (int i=1;i<count;i++){
+            if (drivers[i].compare(drivers[idx], restaurantArea)){
+                idx = i;
+            }
+        }
+
+        drivers[idx].increaseDeliveries();
+        drivers[idx].setLocation(customerArea);
+    }
+
+
+};
+
+void readAppData(DeliveryApp &app) {
+
+}
+
+int main() {
+
+    int testCase;
+    cin >> testCase;
+
+    if (testCase == 1) {
+        cout << "CONSTRUCTOR DeliveryPerson" << endl;
+        DeliveryPerson person("12345", "Stefan", 5);
+        person.print();
+        cout << "CONSTRUCTOR DeliveryPerson OK" << endl;
+    } else if (testCase == 2) {
+        cout << "COPY-CONSTRUCTOR DeliveryPerson" << endl;
+        DeliveryPerson person = DeliveryPerson("12345", "Stefan", 5);
+        person.print();
+        cout << "COPY-CONSTRUCTOR DeliveryPerson OK" << endl;
+    } else if (testCase == 3) {
+        cout << "DEFAULT CONSTRUCTOR AND OPERATOR = DeliveryPerson" << endl;
+        DeliveryPerson person;
+        DeliveryPerson person2("12345", "Stefan", 5);
+        person = person2;
+        person.print();
+        cout << "DEFAULT CONSTRUCTOR AND OPERATOR = DeliveryPerson OK" << endl;
+    } else if (testCase == 4) {
+        cout << "CONSTRUCTOR DeliveryApp" << endl;
+        char appName[50];
+        cin >> appName;
+        DeliveryApp app(appName);
+        app.print();
+        cout << "CONSTRUCTOR DeliveryApp OK" << endl;
+    } else if (testCase == 5) {
+        cout << "DeliveryApp addDeliveryPerson test" << endl;
+        char appName[50];
+        cin >> appName;
+        DeliveryApp app(appName);
+        int n;
+        cin >> n;
+        char ID[6];
+        char name[20];
+        int location;
+        for (int i = 0; i < n; i++) {
+            cin >> ID >> name >> location;
+            app.addDeliveryPerson(DeliveryPerson(ID, name, location));
+        }
+        app.print();
+    } else if (testCase == 6) {
+        cout << "DeliveryApp addDeliveryPerson test" << endl;
+        char appName[50];
+        cin >> appName;
+        DeliveryApp app(appName);
+        int n;
+        cin >> n;
+        char ID[6];
+        char name[20];
+        int location;
+        for (int i = 0; i < n; i++) {
+            cin >> ID >> name >> location;
+            app.addDeliveryPerson(DeliveryPerson(ID, name, location));
+        }
+        cin >> n; //read assign deliveries
+        for (int i = 0; i < n; i++) {
+            int restaurantArea, customerArea;
+            cin >> restaurantArea >> customerArea;
+            app.assignDelivery(restaurantArea, customerArea);
+        }
+        app.print();
+    }
+    return 0;
+}
