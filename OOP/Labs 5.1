@@ -1,0 +1,186 @@
+Како успешен студент на ФИНКИ вие сте повикани да работите на подобрување на IKnow системот. Како дел од системот треба да се додаде нов дел кој ќе биде одговорен за обработување на дисциплински мерки, па како дел од тимот за развивање на софтверот ќе треба да ја имплементирате класата DisciplinaryAction која ќе ги чува следните информации:
+Името на студентот (динамички алоцирана низа од карактери)
+Индексот на студентот (int)
+Причината за дисциплинската мерка (динамички алоцирана низа од карактери)
+бројот на сесии во кои студентот нема право да полага (int)
+
+Класата треба да ги има следните методи и конструктори:
+Default конструктор
+Copy конструктор
+Конструктор со аргументи
+Деструктор
+Set и Get методи за индексот
+Оператор =
+оператор << за печатење на информации за студентот
+оператор ++ за зголемување на бројот на сесии во кои студентот е казнет (во префикс нотација)
+оператор >= за споредба на дисциплински постапки според бројот на сесии во кои студентот е казнет
+
+Операторот << треба да печати според следниот формат:
+Student: [Name]
+Student's index: [Index]
+Reason: [Reason]
+Sessions: [Sessions]
+
+При што вредностите во [] треба да се заменат со вредностите во класата!
+
+!!! ДА НЕ СЕ ПРАВАТ ПРОМЕНИ ВО MAIN() ФУНКЦИЈАТА !!!
+
+
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+class DisciplinaryAction {
+private:
+    char *name;
+    char *reason;
+    int index;
+    int sessions;
+
+public:
+    DisciplinaryAction() {
+        name = nullptr;
+        reason = nullptr;
+        index = 0;
+        sessions = 0;
+    }
+
+    DisciplinaryAction(char *name, int index, char *reason, int sessions) {
+        this->name = new char[strlen(name)];
+        this->reason = new char[strlen(reason)];
+
+        strcpy(this->name, name);
+        strcpy(this->reason, reason);
+
+        this->index = index;
+        this->sessions = sessions;
+    }
+
+    DisciplinaryAction(const DisciplinaryAction &other) {
+        this->name = new char[strlen(other.name)];
+        this->reason = new char[strlen(other.reason)];
+
+        strcpy(this->name, other.name);
+        strcpy(this->reason, other.reason);
+
+        this->index = other.index;
+        this->sessions = other.sessions;
+    }
+
+    ~DisciplinaryAction() {
+        delete[] name;
+        delete[] reason;
+    }
+
+    int getIndex() const {
+        return index;
+    }
+
+    void setIndex(int index) {
+        this->index = index;
+    }
+
+    DisciplinaryAction &operator=(const DisciplinaryAction &other) {
+        if (this == &other) return *this;
+
+        delete[] name;
+        delete[] reason;
+
+        this->name = new char[strlen(other.name)];
+        this->reason = new char[strlen(other.reason)];
+
+        strcpy(this->name, other.name);
+        strcpy(this->reason, other.reason);
+
+        this->index = other.index;
+        this->sessions = other.sessions;
+
+        return *this;
+    }
+
+
+    friend ostream &operator<<(ostream &out, const DisciplinaryAction &da) {
+        out << "Student: " << da.name << '\n';
+        out << "Student's index: " << da.index << '\n';
+        out << "Reason: " << da.reason << '\n';
+        out << "Sessions: " << da.sessions << endl;
+        return out;
+    }
+
+    DisciplinaryAction &operator++() {
+        ++sessions;
+        return *this;
+    };
+
+    bool operator>=(const DisciplinaryAction &da) {
+        return sessions >= da.sessions;
+    }
+};
+
+
+/// Do NOT edit the main() function
+
+int main() {
+    int n;
+    cin >> n;
+
+    /// Testing Default constructor and equal operator
+    /// Array input
+
+    DisciplinaryAction arr[n];
+
+    for (int i = 0; i < n; i++) {
+        char name[100];
+        char reason[100];
+        int index;
+        int sessions;
+
+        cin >> name >> index >> reason >> sessions;
+
+        arr[i] = DisciplinaryAction(name, index, reason, sessions);
+    }
+
+    cout << "-- Testing operator = & operator <<  --\n";
+    cout << arr[0];
+
+    /// Testing copy constructor & set index
+
+    DisciplinaryAction merka(arr[0]);
+    merka.setIndex(112233);
+
+    cout << "\n-- Testing copy constructor & set index --\n";
+    cout << "-------------\n";
+    cout << "Source:\n";
+    cout << "-------------\n";
+    cout << arr[0];
+
+    cout << "\n-------------\n";
+    cout << "Copied and edited:\n";
+    cout << "-------------\n";
+    cout << merka;
+
+    /// Testing if array is OK
+
+    cout << "\n-- Testing if array was inputted correctly --\n";
+
+    for (int i = 0; i < n; i++)
+        cout << arr[i];
+
+
+    cout << "\nTesting operator ++ and <<" << endl;
+    for (int i = 0; i < n; i++)
+        cout << (++arr[i]);
+
+
+    cout << "\nTesting operator >=" << endl;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j) {
+                cout << i << " " << ((arr[i] >= arr[j]) ? ">= " : "< ") << j << endl;
+            }
+        }
+    }
+
+    return 0;
+}
